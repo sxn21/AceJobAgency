@@ -1,0 +1,355 @@
+@model AceJobAgency.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="register-container">
+    <h2>Create Your Account</h2>
+    <p class="subtitle">Join Ace Job Agency and start your journey</p>
+
+    <form asp-action="Register" method="post" enctype="multipart/form-data" id="registerForm" novalidate>
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="FirstName">First Name</label>
+                <input asp-for="FirstName" class="form-control" id="firstName" />
+                <span asp-validation-for="FirstName" class="text-danger field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LastName">Last Name</label>
+                <input asp-for="LastName" class="form-control" id="lastName" />
+                <span asp-validation-for="LastName" class="text-danger field-error"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Gender">Gender</label>
+            <select asp-for="Gender" class="form-control" id="gender">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="Gender" class="text-danger field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="NRIC">NRIC</label>
+            <input asp-for="NRIC" class="form-control" id="nric" placeholder="S1234567A" />
+            <span asp-validation-for="NRIC" class="text-danger field-error"></span>
+            <small class="form-text">Format: S/T/F/G followed by 7 digits and a letter</small>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Email">Email Address</label>
+            <input asp-for="Email" class="form-control" type="email" id="email" />
+            <span asp-validation-for="Email" class="text-danger field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password">Password</label>
+            <div class="password-wrapper">
+                <input asp-for="Password" class="form-control" type="password" id="password" />
+                <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger field-error"></span>
+            <div id="passwordStrength" class="password-strength" style="display: none;">
+                <div class="strength-text"></div>
+                <div class="strength-bar">
+                    <div class="strength-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ConfirmPassword">Confirm Password</label>
+            <div class="password-wrapper">
+                <input asp-for="ConfirmPassword" class="form-control" type="password" id="confirmPassword" />
+                <button type="button" class="password-toggle" id="toggleConfirmPassword" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="text-danger field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DateOfBirth">Date of Birth</label>
+            <input asp-for="DateOfBirth" class="form-control" type="date" id="dob" />
+            <span asp-validation-for="DateOfBirth" class="text-danger field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Resume">Resume (.pdf or .docx)</label>
+            <input asp-for="Resume" class="form-control" type="file" accept=".pdf,.docx" id="resume" />
+            <span asp-validation-for="Resume" class="text-danger field-error"></span>
+            <small class="form-text">Maximum file size: 5MB</small>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="WhoAmI">Who Am I</label>
+            <textarea asp-for="WhoAmI" class="form-control" rows="4" maxlength="1000" id="whoAmI"></textarea>
+            <span asp-validation-for="WhoAmI" class="text-danger field-error"></span>
+            <small class="form-text"><span id="charCount">0</span> / 1000 characters</small>
+        </div>
+
+        <input type="hidden" id="recaptchaToken" name="RecaptchaToken" />
+
+        <div class="form-group" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </div>
+
+        <div class="form-footer">
+            Already have an account? 
+            <a asp-action="Login">Login here</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://www.google.com/recaptcha/api.js?render=@ViewData["RecaptchaSiteKey"]"></script>
+    
+    <script>
+        var recaptchaSiteKey = '@ViewData["RecaptchaSiteKey"]';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var togglePassword = document.getElementById('togglePassword');
+            var toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    var input = document.getElementById('password');
+                    var icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.className = 'fas fa-eye-slash';
+                    } else {
+                        input.type = 'password';
+                        icon.className = 'fas fa-eye';
+                    }
+                });
+            }
+            
+            if (toggleConfirmPassword) {
+                toggleConfirmPassword.addEventListener('click', function() {
+                    var input = document.getElementById('confirmPassword');
+                    var icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.className = 'fas fa-eye-slash';
+                    } else {
+                        input.type = 'password';
+                        icon.className = 'fas fa-eye';
+                    }
+                });
+            }
+
+            function validatePassword(password) {
+                var hasLower = /[a-z]/.test(password);
+                var hasUpper = /[A-Z]/.test(password);
+                var hasNumber = /\d/.test(password);
+                var hasSpecial = /[!@@#$%^&*(),.?":{|}|<>]/.test(password);
+                var minLength = password.length >= 12;
+                
+                var strength = 0;
+                var feedback = [];
+                
+                if (minLength) strength++; else feedback.push("at least 12 characters");
+                if (hasLower) strength++; else feedback.push("lowercase letter");
+                if (hasUpper) strength++; else feedback.push("uppercase letter");
+                if (hasNumber) strength++; else feedback.push("number");
+                if (hasSpecial) strength++; else feedback.push("special character");
+                
+                var labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
+                return {
+                    strength: strength,
+                    label: labels[strength],
+                    message: strength === 5 ? 'Excellent password!' : 'Missing: ' + feedback.join(", "),
+                    isValid: strength === 5
+                };
+            }
+
+            function showError(field, message) {
+                var errorSpan = field.parentElement.querySelector('.field-error');
+                if (errorSpan) {
+                    errorSpan.textContent = message;
+                    errorSpan.style.display = 'block';
+                }
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+            }
+
+            function clearError(field) {
+                var errorSpan = field.parentElement.querySelector('.field-error');
+                if (errorSpan) {
+                    errorSpan.textContent = '';
+                    errorSpan.style.display = 'none';
+                }
+                field.classList.remove('is-invalid');
+            }
+
+            function showValid(field) {
+                clearError(field);
+                field.classList.add('is-valid');
+            }
+
+            var firstName = document.getElementById('firstName');
+            var lastName = document.getElementById('lastName');
+            var email = document.getElementById('email');
+            var nric = document.getElementById('nric');
+            var password = document.getElementById('password');
+            var confirmPassword = document.getElementById('confirmPassword');
+            var gender = document.getElementById('gender');
+
+            if (firstName) {
+                firstName.addEventListener('input', function() {
+                    var value = this.value.trim();
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+                        showError(this, 'Only letters and spaces allowed');
+                    } else if (value.length < 2) {
+                        showError(this, 'Must be at least 2 characters');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (lastName) {
+                lastName.addEventListener('input', function() {
+                    var value = this.value.trim();
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+                        showError(this, 'Only letters and spaces allowed');
+                    } else if (value.length < 2) {
+                        showError(this, 'Must be at least 2 characters');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (email) {
+                email.addEventListener('input', function() {
+                    var value = this.value.trim();
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(value)) {
+                        showError(this, 'Invalid email format');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (nric) {
+                nric.addEventListener('input', function() {
+                    var value = this.value.trim().toUpperCase();
+                    this.value = value;
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (!/^[STFG]\d{7}[A-Z]$/.test(value)) {
+                        showError(this, 'Invalid NRIC format (e.g., S1234567A)');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (password) {
+                password.addEventListener('input', function() {
+                    var value = this.value;
+                    var strengthDiv = document.getElementById('passwordStrength');
+                    var strengthText = strengthDiv.querySelector('.strength-text');
+                    var strengthBarFill = strengthDiv.querySelector('.strength-bar-fill');
+                    
+                    if (value.length === 0) {
+                        strengthDiv.style.display = 'none';
+                        clearError(this);
+                        return;
+                    }
+                    
+                    strengthDiv.style.display = 'block';
+                    var result = validatePassword(value);
+                    
+                    strengthDiv.className = 'password-strength strength-' + result.strength;
+                    strengthBarFill.className = 'strength-bar-fill strength-' + result.strength;
+                    strengthText.innerHTML = '<strong>' + result.label + '</strong>: ' + result.message;
+                    
+                    if (!result.isValid) {
+                        showError(this, 'Password does not meet requirements');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (confirmPassword) {
+                confirmPassword.addEventListener('input', function() {
+                    var value = this.value;
+                    var passwordValue = password ? password.value : '';
+                    
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (value !== passwordValue) {
+                        showError(this, 'Passwords do not match');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (gender) {
+                gender.addEventListener('change', function() {
+                    if (this.value === '') {
+                        showError(this, 'Please select a gender');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            var whoAmI = document.getElementById('whoAmI');
+            if (whoAmI) {
+                whoAmI.addEventListener('input', function() {
+                    document.getElementById('charCount').textContent = this.value.length;
+                });
+            }
+
+            var form = document.getElementById('registerForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Clear any previous token
+                    document.getElementById('recaptchaToken').value = '';
+                    
+                    if (typeof grecaptcha !== 'undefined' && recaptchaSiteKey) {
+                        grecaptcha.ready(function() {
+                            grecaptcha.execute(recaptchaSiteKey, {action: 'register'}).then(function(token) {
+                                document.getElementById('recaptchaToken').value = token;
+                                form.submit();
+                            }).catch(function(error) {
+                                console.error('reCAPTCHA error:', error);
+                                // Still submit form, server will handle the error
+                                form.submit();
+                            });
+                        });
+                    } else {
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,76 @@
+﻿@model AceJobAgency.Models.User
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="dashboard-container">
+    <h2>Welcome to Your Dashboard</h2>
+    <p class="subtitle">Member Information</p>
+
+    <div class="user-info-card">
+        <div class="info-row">
+            <span class="info-label">Name:</span>
+            <span class="info-value">@Model.FirstName @Model.LastName</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Gender:</span>
+            <span class="info-value">@Model.Gender</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">NRIC:</span>
+            <span class="info-value">@Model.EncryptedNRIC</span>
+            <span class="info-badge">Decrypted</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-value">@Model.Email</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Date of Birth:</span>
+            <span class="info-value">@Model.DateOfBirth.ToString("dd MMM yyyy")</span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ResumePath))
+        {
+            <div class="info-row">
+                <span class="info-label">Resume:</span>
+                <span class="info-value">
+                    <a href="@Model.ResumePath" target="_blank" class="btn-link">View Resume</a>
+                </span>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.WhoAmI))
+        {
+            <div class="info-row">
+                <span class="info-label">Who Am I:</span>
+                <span class="info-value">@Html.Raw(Model.WhoAmI)</span>
+            </div>
+        }
+
+        <div class="info-row">
+            <span class="info-label">Member Since:</span>
+            <span class="info-value">@Model.CreatedAt.ToString("dd MMM yyyy")</span>
+        </div>
+
+        @if (Model.LastLoginAt.HasValue)
+        {
+            <div class="info-row">
+                <span class="info-label">Last Login:</span>
+                <span class="info-value">@Model.LastLoginAt.Value.ToString("dd MMM yyyy HH:mm")</span>
+            </div>
+        }
+    </div>
+
+    <div class="dashboard-actions">
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+</div>

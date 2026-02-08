@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ace Job Agency</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* Remove hardcoded reCAPTCHA script from here *@
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <a class="navbar-brand" href="/">Ace Job Agency</a>
+                @if (Context.Session.GetInt32("UserId").HasValue)
+                {
+                    <div class="navbar-nav">
+                        <span class="nav-text">Welcome, @Context.Session.GetString("Email")</span>
+                        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-logout">Logout</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container main-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-error">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            &copy; 2024 - Ace Job Agency - Secure Web Application
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

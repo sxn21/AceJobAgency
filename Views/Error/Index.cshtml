@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="error-container">
+    <h1 class="error-code">@ViewBag.StatusCode</h1>
+    <h2 class="error-title">Oops! Something went wrong</h2>
+    <p class="error-message">@ViewBag.Message</p>
+    
+    <div class="error-actions">
+        <a href="/" class="btn btn-primary">Go to Home</a>
+        <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+    </div>
+</div>

@@ -1,0 +1,149 @@
+@model AceJobAgency.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="login-container">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Login to your Ace Job Agency account</p>
+
+    <form asp-action="Login" method="post" id="loginForm" novalidate>
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+
+        <div class="form-group">
+            <label asp-for="Email">Email Address</label>
+            <input asp-for="Email" class="form-control" type="email" id="email" autofocus />
+            <span asp-validation-for="Email" class="text-danger field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password">Password</label>
+            <div class="password-wrapper">
+                <input asp-for="Password" class="form-control" type="password" id="password" />
+                <button type="button" class="password-toggle" id="togglePassword" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger field-error"></span>
+        </div>
+
+        <input type="hidden" id="recaptchaToken" name="RecaptchaToken" />
+
+        <div class="form-group" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </div>
+
+        <div class="form-footer">
+            Don't have an account? 
+            <a asp-action="Register">Register here</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://www.google.com/recaptcha/api.js?render=@ViewData["RecaptchaSiteKey"]"></script>
+    
+    <script>
+        var recaptchaSiteKey = '@ViewData["RecaptchaSiteKey"]';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var togglePassword = document.getElementById('togglePassword');
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    var input = document.getElementById('password');
+                    var icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.className = 'fas fa-eye-slash';
+                    } else {
+                        input.type = 'password';
+                        icon.className = 'fas fa-eye';
+                    }
+                });
+            }
+
+            function showError(field, message) {
+                var errorSpan = field.parentElement.querySelector('.field-error');
+                if (errorSpan) {
+                    errorSpan.textContent = message;
+                    errorSpan.style.display = 'block';
+                }
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+            }
+
+            function clearError(field) {
+                var errorSpan = field.parentElement.querySelector('.field-error');
+                if (errorSpan) {
+                    errorSpan.textContent = '';
+                    errorSpan.style.display = 'none';
+                }
+                field.classList.remove('is-invalid');
+            }
+
+            function showValid(field) {
+                clearError(field);
+                field.classList.add('is-valid');
+            }
+
+            var email = document.getElementById('email');
+            var password = document.getElementById('password');
+
+            if (email) {
+                email.addEventListener('input', function() {
+                    var value = this.value.trim();
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(value)) {
+                        showError(this, 'Invalid email format');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            if (password) {
+                password.addEventListener('input', function() {
+                    var value = this.value;
+                    if (value.length === 0) {
+                        clearError(this);
+                    } else if (value.length < 6) {
+                        showError(this, 'Password is too short');
+                    } else {
+                        showValid(this);
+                    }
+                });
+            }
+
+            var form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Clear any previous token
+                    document.getElementById('recaptchaToken').value = '';
+                    
+                    if (typeof grecaptcha !== 'undefined' && recaptchaSiteKey) {
+                        grecaptcha.ready(function() {
+                            grecaptcha.execute(recaptchaSiteKey, {action: 'login'}).then(function(token) {
+                                document.getElementById('recaptchaToken').value = token;
+                                form.submit();
+                            }).catch(function(error) {
+                                console.error('reCAPTCHA error:', error);
+                                // Still submit form, server will handle the error
+                                form.submit();
+                            });
+                        });
+                    } else {
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+}
