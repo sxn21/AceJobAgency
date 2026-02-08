@@ -1,5 +1,9 @@
 name: Security Scan
 
+permissions:
+  security-events: read
+
+
 on:
   push:
     branches: [ "main" ]
